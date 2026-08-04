@@ -54,5 +54,6 @@ invalid answers are rejected.
 - ruff runs in pre-commit; mypy does not - slow in hooks, fights the uv env. Run it
   on demand and in CI.
 - Hooks are `local` and call `uv run ruff`, so ruff has one version: the dev dependency.
-- Generic Python standards live in `~/.config/agents-config/AGENTS.md`. The generated
-  `AGENTS.md` carries project-specific scope, commands, and invariants only.
+- The generated `AGENTS.md` carries project-specific scope, commands, and invariants
+  only. This template assumes generic Python standards live in a user-level agents
+  file, e.g. `~/.config/agents-config/AGENTS.md`.
