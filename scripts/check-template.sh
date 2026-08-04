@@ -23,7 +23,7 @@ copy_template() {
     local destination=$1
     shift
 
-    local copier_args=(copy --quiet --defaults)
+    local copier_args=(copy --defaults)
     if git -C "$template_source" rev-parse --git-dir >/dev/null 2>&1; then
         copier_args+=(-r HEAD)
     fi
@@ -54,7 +54,7 @@ for python_version in 3.12 3.13 3.14; do
         answers+=(-d "package_name=acme_core_$version_suffix")
     fi
 
-    copy_template "$project_dir" "${answers[@]}"
+    copy_template "$project_dir" --quiet "${answers[@]}"
     check_project "$project_dir"
 done
 
@@ -64,7 +64,7 @@ assert_rejected() {
     local output_file="$work_dir/rejected-$case_name.log"
     shift 2
 
-    if copy_template "$work_dir/rejected-$case_name" "$@" >"$output_file" 2>&1; then
+    if copy_template "$work_dir/rejected-$case_name" --quiet "$@" >"$output_file" 2>&1; then
         printf 'Expected Copier to reject %s\n' "$case_name" >&2
         return 1
     fi
@@ -93,5 +93,25 @@ assert_rejected \
     -d project_name=sample-project \
     -d package_name=sample_project \
     -d $'description=First line\nSecond line'
+
+assert_after_copy_message() {
+    local output_file="$work_dir/after-copy-message.log"
+    local expected
+
+    copy_template "$work_dir/after-copy-message" \
+        -d project_name=sample-message \
+        -d 'description=A sample project' >"$output_file" 2>&1
+
+    # Renders empty rather than failing when a variable name is wrong, so assert.
+    for expected in sample-message 'git init' 'uv run pre-commit install'; do
+        if ! grep -Fq "$expected" "$output_file"; then
+            printf 'After-copy message is missing %s:\n' "$expected" >&2
+            sed -n '1,160p' "$output_file" >&2
+            return 1
+        fi
+    done
+}
+
+assert_after_copy_message
 
 printf 'Template checks passed.\n'
