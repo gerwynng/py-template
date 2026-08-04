@@ -1,8 +1,7 @@
 repos:
   - repo: local
     hooks:
-      # Local hooks so the ruff version is the one pinned in dev dependencies,
-      # rather than a second version tracked by a pre-commit rev.
+      # Local hooks so ruff has one version: the dev dependency.
       - id: ruff-check
         name: ruff check
         entry: uv run ruff check --fix
