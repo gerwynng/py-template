@@ -1,6 +1,16 @@
 _subdirectory: template
 _min_copier_version: "9.17.1"
 
+# git init comes first: `pre-commit install` writes to .git/hooks.
+_message_after_copy: |
+  Generated {{ project_name }}. Next:
+
+    cd {{ _copier_conf.dst_path }}
+    git init
+    uv sync
+    uv run pre-commit install
+    git add -A && git commit -m "Initial commit from py-template"
+
 project_name:
   type: str
   help: Project name (repo and directory name, e.g. my-project)
