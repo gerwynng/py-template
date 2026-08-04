@@ -26,12 +26,17 @@ Three-way merges template changes into a clean worktree using `.copier-answers.y
 ## Release a template change
 
 ```sh
-git commit -am "..."
-git tag -a v0.2.0 -m "..."
-git push && git push origin v0.2.0
+scripts/check-template.sh
+git add -A && git commit -m "..."
+git tag -a vX.Y.Z -m "..."
+git push && git push origin vX.Y.Z
 ```
 
 Use annotated tags; Copier resolves the latest remote tag.
+
+The template check renders every supported Python version, exercises custom package
+names and quoted descriptions, runs the generated checks and build, and verifies that
+invalid answers are rejected.
 
 ## What it generates
 

@@ -1,5 +1,5 @@
 _subdirectory: template
-_min_copier_version: "9.0.0"
+_min_copier_version: "9.17.1"
 
 project_name:
   type: str
@@ -9,8 +9,9 @@ project_name:
     Required.
     {%- elif project_name != project_name | lower -%}
     Must be lowercase.
-    {%- elif ' ' in project_name -%}
-    Must not contain spaces; use hyphens.
+    {%- elif not project_name | regex_search('^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$') -%}
+    Must start and end with a letter or digit and contain only letters, digits, hyphens,
+    underscores, or periods.
     {%- endif -%}
 
 package_name:
@@ -24,12 +25,24 @@ package_name:
     Must be lowercase.
     {%- elif not package_name.isidentifier() -%}
     Must be a valid Python identifier; use underscores.
+    {%- elif package_name in [
+      'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del',
+      'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in',
+      'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while',
+      'with', 'yield'
+    ] -%}
+    Must not be a Python keyword.
     {%- endif -%}
 
 description:
   type: str
   help: One-line description (used in pyproject and the AGENTS.md scope line)
-  validator: "{% if not description %}Required.{% endif %}"
+  validator: >-
+    {%- if not description | trim -%}
+    Required.
+    {%- elif '\n' in description or '\r' in description -%}
+    Must be a single line.
+    {%- endif -%}
 
 python_version:
   type: str
