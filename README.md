@@ -27,6 +27,18 @@ your local edits. Requires the project to be a git repo with a clean working tre
 `.copier-answers.yml` in the generated project records which template version it came
 from, so tag releases here when you change the template.
 
+## Releasing a template change
+
+```sh
+git commit -am "..."
+git tag -a v0.2.0 -m "..."
+git push && git push origin v0.2.0
+```
+
+Use **annotated** tags (`git tag -a`). `git push --follow-tags` silently skips
+lightweight tags, so an untagged-on-the-remote change is invisible to `copier`,
+which resolves to the latest tag it can see.
+
 ## What it generates
 
 | file | purpose |
