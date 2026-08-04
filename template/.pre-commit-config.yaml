@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      # Local hooks so the ruff version is the one pinned in dev dependencies,
+      # rather than a second version tracked by a pre-commit rev.
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]

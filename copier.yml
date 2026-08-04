@@ -1,0 +1,40 @@
+_subdirectory: template
+_min_copier_version: "9.0.0"
+
+project_name:
+  type: str
+  help: Project name (repo and directory name, e.g. my-project)
+  validator: >-
+    {%- if not project_name -%}
+    Required.
+    {%- elif project_name != project_name | lower -%}
+    Must be lowercase.
+    {%- elif ' ' in project_name -%}
+    Must not contain spaces; use hyphens.
+    {%- endif -%}
+
+package_name:
+  type: str
+  help: Importable package name under src/
+  default: "{{ project_name | replace('-', '_') }}"
+  validator: >-
+    {%- if not package_name -%}
+    Required.
+    {%- elif package_name != package_name | lower -%}
+    Must be lowercase.
+    {%- elif '-' in package_name or ' ' in package_name -%}
+    Must be a valid Python identifier; use underscores.
+    {%- endif -%}
+
+description:
+  type: str
+  help: One-line description (used in pyproject and the AGENTS.md scope line)
+
+python_version:
+  type: str
+  help: Minimum Python version
+  default: "3.12"
+  choices:
+    - "3.12"
+    - "3.13"
+    - "3.14"
