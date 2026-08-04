@@ -8,12 +8,11 @@ and an `AGENTS.md` skeleton.
 ```sh
 uvx copier copy gh:gerwynng/py-template my-project
 cd my-project
+git init  # pre-commit install writes to .git/hooks
 uv sync
 uv run pre-commit install
-git init && git add -A && git commit -m "Initial commit from py-template"
+git add -A && git commit -m "Initial commit from py-template"
 ```
-
-`uvx` fetches copier, copier fetches this repo over HTTPS — no clone or install needed.
 
 ## Update a generated project
 
@@ -22,8 +21,7 @@ cd my-project
 uvx copier update
 ```
 
-Three-way merges template changes against your local edits; needs a clean worktree.
-`.copier-answers.yml` records the version the project came from.
+Three-way merges template changes into a clean worktree using `.copier-answers.yml`.
 
 ## Release a template change
 
@@ -33,8 +31,7 @@ git tag -a v0.2.0 -m "..."
 git push && git push origin v0.2.0
 ```
 
-Tags must be annotated (`-a`) — `git push --follow-tags` skips lightweight tags, and
-copier resolves to the latest tag on the remote.
+Use annotated tags; Copier resolves the latest remote tag.
 
 ## What it generates
 
@@ -49,7 +46,7 @@ copier resolves to the latest tag on the remote.
 ## Conventions
 
 - Tool config in `pyproject.toml`, not separate `ruff.toml` / `setup.cfg`.
-- ruff runs in pre-commit; mypy does not — slow in hooks, fights the uv env. Run it
+- ruff runs in pre-commit; mypy does not - slow in hooks, fights the uv env. Run it
   on demand and in CI.
 - Hooks are `local` and call `uv run ruff`, so ruff has one version: the dev dependency.
 - Generic Python standards live in `~/.config/agents-config/AGENTS.md`. The generated

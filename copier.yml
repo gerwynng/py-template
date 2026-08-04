@@ -22,13 +22,14 @@ package_name:
     Required.
     {%- elif package_name != package_name | lower -%}
     Must be lowercase.
-    {%- elif '-' in package_name or ' ' in package_name -%}
+    {%- elif not package_name.isidentifier() -%}
     Must be a valid Python identifier; use underscores.
     {%- endif -%}
 
 description:
   type: str
   help: One-line description (used in pyproject and the AGENTS.md scope line)
+  validator: "{% if not description %}Required.{% endif %}"
 
 python_version:
   type: str
