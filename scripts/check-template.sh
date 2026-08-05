@@ -95,14 +95,29 @@ assert_rejected \
     -d $'description=First line\nSecond line'
 
 assert_after_copy_message() {
+    local destination="$work_dir/after copy message"
     local output_file="$work_dir/after-copy-message.log"
+    local actual_destination
+    local cd_command
     local expected
+    local resolved_destination
 
-    copy_template "$work_dir/after-copy-message" \
+    copy_template "$destination" \
         -d project_name=sample-message \
         -d 'description=A sample project' >"$output_file" 2>&1
 
-    # Renders empty rather than failing when a variable name is wrong, so assert.
+    # Execute the template-controlled command to verify interpolation and shell quoting.
+    cd_command=$(sed -n 's/^  \(cd .*\)$/\1/p' "$output_file")
+    resolved_destination=$(cd -- "$destination" && pwd -P)
+    if [[ -z "$cd_command" ]] || \
+        ! actual_destination=$(eval "$cd_command" && pwd -P) || \
+        [[ "$actual_destination" != "$resolved_destination" ]]; then
+        printf 'After-copy cd command does not resolve to %s:\n' "$resolved_destination" >&2
+        sed -n '1,160p' "$output_file" >&2
+        return 1
+    fi
+
+    # Undefined message variables render empty, so assert the remaining content.
     for expected in sample-message 'git init' 'uv run pre-commit install'; do
         if ! grep -Fq "$expected" "$output_file"; then
             printf 'After-copy message is missing %s:\n' "$expected" >&2

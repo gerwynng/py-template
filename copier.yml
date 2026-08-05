@@ -5,7 +5,7 @@ _min_copier_version: "9.17.1"
 _message_after_copy: |
   Generated {{ project_name }}. Next:
 
-    cd {{ _copier_conf.dst_path }}
+    cd {{ _copier_conf.dst_path | quote }}
     git init
     uv sync
     uv run pre-commit install
