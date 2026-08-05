@@ -23,6 +23,36 @@ uvx copier update
 
 Three-way merges template changes into a clean worktree using `.copier-answers.yml`.
 
+## Adopt into an existing project
+
+`copy` has no three-way merge - only `--overwrite` or `--skip`, whole files either way.
+Render into a staging directory first so inspecting the template cannot overwrite existing
+source, tests, or configuration:
+
+```sh
+cd existing-project
+git status --short  # make sure all existing work is accounted for
+staging_dir=$(mktemp -d)
+uvx copier copy gh:gerwynng/py-template "$staging_dir"
+```
+
+Merge `[tool.ruff]`, `[tool.ruff.lint]`, `[tool.pyright]`, and
+`[tool.pytest.ini_options]` from the staged `pyproject.toml`. Adjust Ruff's target version,
+Pyright's `pythonVersion` and `include`, and pytest's `testpaths` to the existing project.
+Also merge the `ruff`, `pyright[nodejs]`, `pytest`, and `pre-commit` development
+dependencies. Do not copy `[project]`, its `dependencies`, `[build-system]`, or
+`[tool.uv.build-backend]`: those are greenfield defaults that can erase real settings.
+
+Merge `.gitignore` and `.pre-commit-config.yaml` instead of replacing them. Copy any other
+staged files only after reviewing them; in particular, do not copy the generated `src/`
+or `tests/` skeleton over existing code. Finally, copy `.copier-answers.yml` from the
+staging directory into the project and keep it under version control. It records the
+template source and answers that make later `copier update` work. If the project already
+has an answers file, do not replace it without first reconciling which template owns it.
+
+Expect `typeCheckingMode = "strict"` to be the expensive part on an existing codebase,
+especially against untyped dependencies.
+
 ## Release a template change
 
 ```sh

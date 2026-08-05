@@ -130,4 +130,53 @@ assert_after_copy_message() {
 
 assert_after_copy_message
 
+# Copying onto an existing project must preserve its prose but still deliver the config.
+assert_skip_if_exists() {
+    local destination="$work_dir/existing-project"
+    local expected
+
+    mkdir -p "$destination"
+    printf 'Existing readme.\n' >"$destination/README.md"
+    printf 'Existing agent notes.\n' >"$destination/AGENTS.md"
+    printf 'Existing pyproject.\n' >"$destination/pyproject.toml"
+    printf 'Existing ignore rules.\n' >"$destination/.gitignore"
+    printf 'Existing hooks.\n' >"$destination/.pre-commit-config.yaml"
+
+    copy_template "$destination" --quiet --overwrite \
+        -d project_name=sample-existing \
+        -d 'description=A sample project'
+
+    for expected in 'README.md:Existing readme.' 'AGENTS.md:Existing agent notes.'; do
+        if ! grep -Fqx "${expected#*:}" "$destination/${expected%%:*}"; then
+            printf 'Copy onto an existing project overwrote %s\n' "${expected%%:*}" >&2
+            return 1
+        fi
+    done
+    for expected in \
+        'pyproject.toml:Existing pyproject.' \
+        '.gitignore:Existing ignore rules.' \
+        '.pre-commit-config.yaml:Existing hooks.'; do
+        if grep -Fqx "${expected#*:}" "$destination/${expected%%:*}"; then
+            printf 'Copy onto an existing project skipped %s\n' "${expected%%:*}" >&2
+            return 1
+        fi
+    done
+    for expected in '[tool.ruff]' '[tool.ruff.lint]' '[tool.pyright]' \
+        '[tool.pytest.ini_options]'; do
+        if ! grep -Fq "$expected" "$destination/pyproject.toml"; then
+            printf 'Copy onto an existing project did not write %s\n' "$expected" >&2
+            return 1
+        fi
+    done
+    for expected in '.gitignore:.venv' '.pre-commit-config.yaml:ruff-check'; do
+        if ! grep -Fq "${expected#*:}" "$destination/${expected%%:*}"; then
+            printf 'Copy onto an existing project did not write config to %s\n' \
+                "${expected%%:*}" >&2
+            return 1
+        fi
+    done
+}
+
+assert_skip_if_exists
+
 printf 'Template checks passed.\n'
