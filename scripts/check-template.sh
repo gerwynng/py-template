@@ -130,4 +130,51 @@ assert_after_copy_message() {
 
 assert_after_copy_message
 
+# Copying onto an existing project must preserve its documentation and agent instructions
+# but still deliver the config.
+assert_skip_if_exists() {
+    local destination="$work_dir/existing-project"
+    local sentinel='Existing content.'
+    local expected
+    local file
+
+    mkdir -p "$destination"
+    for file in README.md AGENTS.md CLAUDE.md pyproject.toml .gitignore \
+        .pre-commit-config.yaml; do
+        printf '%s\n' "$sentinel" >"$destination/$file"
+    done
+
+    copy_template "$destination" --quiet --overwrite \
+        -d project_name=sample-existing \
+        -d 'description=A sample project'
+
+    for file in README.md AGENTS.md CLAUDE.md; do
+        if ! grep -Fqx "$sentinel" "$destination/$file"; then
+            printf 'Copy onto an existing project overwrote %s\n' "$file" >&2
+            return 1
+        fi
+    done
+    for file in pyproject.toml .gitignore .pre-commit-config.yaml; do
+        if grep -Fqx "$sentinel" "$destination/$file"; then
+            printf 'Copy onto an existing project skipped %s\n' "$file" >&2
+            return 1
+        fi
+    done
+    for expected in \
+        'pyproject.toml:[tool.ruff]' \
+        'pyproject.toml:[tool.ruff.lint]' \
+        'pyproject.toml:[tool.pyright]' \
+        'pyproject.toml:[tool.pytest.ini_options]' \
+        '.gitignore:.venv' \
+        '.pre-commit-config.yaml:ruff-check'; do
+        if ! grep -Fq "${expected#*:}" "$destination/${expected%%:*}"; then
+            printf 'Copy onto an existing project did not write %s to %s\n' \
+                "${expected#*:}" "${expected%%:*}" >&2
+            return 1
+        fi
+    done
+}
+
+assert_skip_if_exists
+
 printf 'Template checks passed.\n'
