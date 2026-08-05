@@ -1,10 +1,7 @@
 _subdirectory: template
 _min_copier_version: "9.17.1"
 
-# Documentation and agent instructions carry project content once a project is real, so
-# the skeleton must never overwrite them - on copy into an existing tree, or on update.
-# Config files are deliberately absent here: propagating their template changes is what
-# update is for.
+# Preserve project-authored docs; config remains updateable.
 _skip_if_exists:
   - /README.md
   - /AGENTS.md
