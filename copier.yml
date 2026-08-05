@@ -6,9 +6,9 @@ _min_copier_version: "9.17.1"
 # Config files are deliberately absent here: propagating their template changes is what
 # update is for.
 _skip_if_exists:
-  - README.md
-  - AGENTS.md
-  - CLAUDE.md
+  - /README.md
+  - /AGENTS.md
+  - /CLAUDE.md
 
 # git init comes first: `pre-commit install` writes to .git/hooks.
 _message_after_copy: |
