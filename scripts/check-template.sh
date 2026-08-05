@@ -38,7 +38,7 @@ check_project() {
     uv run --directory "$project_dir" pytest
     uv run --directory "$project_dir" ruff check .
     uv run --directory "$project_dir" ruff format --check .
-    uv run --directory "$project_dir" mypy
+    uv run --directory "$project_dir" pyright
     uv build --directory "$project_dir"
 }
 

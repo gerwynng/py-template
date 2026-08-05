@@ -1,6 +1,6 @@
 # py-template
 
-Copier template for a Python project: uv, ruff, mypy strict, pytest, pre-commit,
+Copier template for a Python project: uv, ruff, pyright strict, pytest, pre-commit,
 and an `AGENTS.md` skeleton.
 
 ## Use
@@ -42,7 +42,7 @@ invalid answers are rejected.
 
 | file | purpose |
 | --- | --- |
-| `pyproject.toml` | metadata plus `[tool.ruff]`, `[tool.mypy]`, `[tool.pytest.ini_options]` |
+| `pyproject.toml` | metadata plus `[tool.ruff]`, `[tool.pyright]`, `[tool.pytest.ini_options]` |
 | `.pre-commit-config.yaml` | ruff check + format, local hooks |
 | `AGENTS.md` | Scope / Commands / Invariants / Working notes skeleton |
 | `CLAUDE.md` | `@AGENTS.md` |
@@ -51,9 +51,13 @@ invalid answers are rejected.
 ## Conventions
 
 - Tool config in `pyproject.toml`, not separate `ruff.toml` / `setup.cfg`.
-- ruff runs in pre-commit; mypy does not - slow in hooks, fights the uv env. Run it
+- ruff runs in pre-commit; pyright does not - slow in hooks, fights the uv env. Run it
   on demand and in CI.
 - Hooks are `local` and call `uv run ruff`, so ruff has one version: the dev dependency.
+- pyright is the same engine as Pylance. Both respect the generated `[tool.pyright]`
+  table, so editor and CI diagnostics stay aligned.
+- pyright is pinned as `pyright[nodejs]`. The extra resolves Node as a locked wheel, so
+  `uv sync` stays sufficient - bare `pyright` downloads a runtime on first run.
 - Generic Python standards live in a user-level agents file, e.g.
   `~/.config/agents-config/AGENTS.md`. The generated `AGENTS.md` carries
   project-specific scope, commands, and invariants only.
