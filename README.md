@@ -22,6 +22,8 @@ uvx copier update
 ```
 
 Three-way merges template changes into a clean worktree using `.copier-answers.yml`.
+`_skip_if_exists` holds back `README.md`, `AGENTS.md`, and `CLAUDE.md` once the project has
+edited them, so those files stop receiving template changes.
 
 ## Adopt into an existing project
 
@@ -36,23 +38,19 @@ staging_dir=$(mktemp -d)
 uvx copier copy gh:gerwynng/py-template "$staging_dir"
 ```
 
-Merge `[tool.ruff]`, `[tool.ruff.lint]`, `[tool.pyright]`, and
-`[tool.pytest.ini_options]` from the staged `pyproject.toml`. Adjust Ruff's target version,
-Pyright's `pythonVersion` and `include`, and pytest's `testpaths` to the existing project.
-Also merge the `ruff`, `pyright[nodejs]`, `pytest`, and `pre-commit` development
-dependencies. Do not copy `[project]`, its `dependencies`, `[build-system]`, or
-`[tool.uv.build-backend]`: those are greenfield defaults that can erase real settings.
+Merge `[tool.ruff]`, `[tool.ruff.lint]`, `[tool.pyright]`, and `[tool.pytest.ini_options]`
+from the staged `pyproject.toml`, plus the `ruff`, `pyright[nodejs]`, `pytest`, and
+`pre-commit` development dependencies. Adjust Ruff's target version, Pyright's
+`pythonVersion` and `include`, and pytest's `testpaths` to the existing project. Leave
+`[project]`, its `dependencies`, `[build-system]`, and `[tool.uv.build-backend]`:
+greenfield defaults that can erase real settings.
 
-Merge `.gitignore` and `.pre-commit-config.yaml` instead of replacing them. Copy any other
-staged files only after reviewing them. Keep the existing `.python-version` unless the
-selected template version should become the project's runtime pin, and preserve an existing
-`CLAUDE.md` unless deliberately replacing it with the staged `@AGENTS.md` pointer. Do not
-copy the generated `src/` or `tests/` skeleton over existing code.
+Merge `.gitignore` and `.pre-commit-config.yaml` instead of replacing them. Never copy the
+generated `src/` or `tests/` skeleton over existing code. Copy anything else -
+`.python-version`, `CLAUDE.md` - only after review.
 
-Finally, copy `.copier-answers.yml` from the staging directory into the project and keep it
-under version control. It records the template source and answers that make later
-`copier update` work. If the project already has an answers file, do not replace it without
-first reconciling which template owns it.
+Finally, copy `.copier-answers.yml` into the project and keep it under version control;
+later `copier update` reads it. Reconcile first if the project already has one.
 
 Expect `typeCheckingMode = "strict"` to be the expensive part on an existing codebase,
 especially against untyped dependencies.
