@@ -46,10 +46,11 @@ for python_version in 3.12 3.13 3.14; do
     version_suffix=${python_version//./}
     project_dir="$work_dir/python-$version_suffix"
     answers=(
-        -d "project_name=sample-$version_suffix"
+        -d "project_name=sample-$version_suffix.with-dot"
         -d 'description=A "quoted" project'
         -d "python_version=$python_version"
     )
+    # The 3.12 case exercises default package-name normalization for hyphens and periods.
     if [[ "$python_version" != 3.12 ]]; then
         answers+=(-d "package_name=acme_core_$version_suffix")
     fi

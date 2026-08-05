@@ -27,7 +27,7 @@ project_name:
 package_name:
   type: str
   help: Importable package name under src/
-  default: "{{ project_name | replace('-', '_') }}"
+  default: "{{ project_name | replace('-', '_') | replace('.', '_') }}"
   validator: >-
     {%- if not package_name -%}
     Required.
