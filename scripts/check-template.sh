@@ -130,7 +130,8 @@ assert_after_copy_message() {
 
 assert_after_copy_message
 
-# Copying onto an existing project must preserve its prose but still deliver the config.
+# Copying onto an existing project must preserve its documentation and agent instructions
+# but still deliver the config.
 assert_skip_if_exists() {
     local destination="$work_dir/existing-project"
     local expected
@@ -138,6 +139,7 @@ assert_skip_if_exists() {
     mkdir -p "$destination"
     printf 'Existing readme.\n' >"$destination/README.md"
     printf 'Existing agent notes.\n' >"$destination/AGENTS.md"
+    printf 'Existing Claude notes.\n' >"$destination/CLAUDE.md"
     printf 'Existing pyproject.\n' >"$destination/pyproject.toml"
     printf 'Existing ignore rules.\n' >"$destination/.gitignore"
     printf 'Existing hooks.\n' >"$destination/.pre-commit-config.yaml"
@@ -146,7 +148,10 @@ assert_skip_if_exists() {
         -d project_name=sample-existing \
         -d 'description=A sample project'
 
-    for expected in 'README.md:Existing readme.' 'AGENTS.md:Existing agent notes.'; do
+    for expected in \
+        'README.md:Existing readme.' \
+        'AGENTS.md:Existing agent notes.' \
+        'CLAUDE.md:Existing Claude notes.'; do
         if ! grep -Fqx "${expected#*:}" "$destination/${expected%%:*}"; then
             printf 'Copy onto an existing project overwrote %s\n' "${expected%%:*}" >&2
             return 1

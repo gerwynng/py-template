@@ -44,11 +44,15 @@ dependencies. Do not copy `[project]`, its `dependencies`, `[build-system]`, or
 `[tool.uv.build-backend]`: those are greenfield defaults that can erase real settings.
 
 Merge `.gitignore` and `.pre-commit-config.yaml` instead of replacing them. Copy any other
-staged files only after reviewing them; in particular, do not copy the generated `src/`
-or `tests/` skeleton over existing code. Finally, copy `.copier-answers.yml` from the
-staging directory into the project and keep it under version control. It records the
-template source and answers that make later `copier update` work. If the project already
-has an answers file, do not replace it without first reconciling which template owns it.
+staged files only after reviewing them. Keep the existing `.python-version` unless the
+selected template version should become the project's runtime pin, and preserve an existing
+`CLAUDE.md` unless deliberately replacing it with the staged `@AGENTS.md` pointer. Do not
+copy the generated `src/` or `tests/` skeleton over existing code.
+
+Finally, copy `.copier-answers.yml` from the staging directory into the project and keep it
+under version control. It records the template source and answers that make later
+`copier update` work. If the project already has an answers file, do not replace it without
+first reconciling which template owns it.
 
 Expect `typeCheckingMode = "strict"` to be the expensive part on an existing codebase,
 especially against untyped dependencies.
