@@ -67,8 +67,8 @@ git push && git push origin vX.Y.Z
 Use annotated tags; Copier resolves the latest remote tag.
 
 The template check renders every supported Python version, exercises custom package
-names and quoted descriptions, runs the generated checks and build, and verifies that
-invalid answers are rejected.
+names and quoted descriptions, runs the generated checks and build, verifies that
+invalid answers are rejected, and tests update from the previous release tag.
 
 ## What it generates
 
@@ -76,6 +76,7 @@ invalid answers are rejected.
 | --- | --- |
 | `pyproject.toml` | metadata plus `[tool.ruff]`, `[tool.pyright]`, `[tool.pytest.ini_options]` |
 | `.pre-commit-config.yaml` | ruff check + format, local hooks |
+| `.github/workflows/ci.yml` | pytest, ruff, pyright, and build checks |
 | `AGENTS.md` | Scope / Commands / Invariants / Working notes skeleton |
 | `CLAUDE.md` | `@AGENTS.md` |
 | `src/<package>/`, `tests/` | src layout with a smoke test |
@@ -85,7 +86,7 @@ invalid answers are rejected.
 - Tool config in `pyproject.toml`, not separate `ruff.toml` / `setup.cfg`.
 - ruff runs in pre-commit; pyright does not - slow in hooks, fights the uv env. Run it
   on demand and in CI.
-- Hooks are `local` and call `uv run ruff`, so ruff has one version: the dev dependency.
+- Hooks are `local` and call `uv run --locked ruff`, so ruff has one version: the dev dependency.
 - pyright is the same engine as Pylance. Both respect the generated `[tool.pyright]`
   table, so editor and CI diagnostics stay aligned.
 - pyright is pinned as `pyright[nodejs]`. The extra resolves Node as a locked wheel, so
