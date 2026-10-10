@@ -55,6 +55,27 @@ later `copier update` reads it. Reconcile first if the project already has one.
 Expect `typeCheckingMode = "strict"` to be the expensive part on an existing codebase,
 especially against untyped dependencies.
 
+## Try a local project
+
+Generate a persistent sample from the local template, including uncommitted changes:
+
+```sh
+uvx --from 'copier==9.17.1' copier copy --defaults -r HEAD \
+  -d project_name=sample-project -d 'description=Local template playground' \
+  . .playground/sample-project
+cd .playground/sample-project
+git init
+uv sync
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run pyright
+uv build
+```
+
+`.playground/` is gitignored and excluded from template validation snapshots. Use a
+new destination under it when trying a fresh generation.
+
 ## Release a template change
 
 ```sh

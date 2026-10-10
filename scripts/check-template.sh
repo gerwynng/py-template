@@ -20,7 +20,7 @@ if [[ -n "${TEMPLATE_SOURCE:-}" ]]; then
 else
     template_source="$work_dir/template-source"
     mkdir -p "$template_source"
-    tar -C "$repo_root" --exclude=.git -cf - . | tar -C "$template_source" -xf -
+    tar -C "$repo_root" --exclude=.git --exclude=./.playground -cf - . | tar -C "$template_source" -xf -
 fi
 
 copy_template() {
