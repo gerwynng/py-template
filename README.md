@@ -22,8 +22,8 @@ uvx copier update
 ```
 
 Three-way merges template changes into a clean worktree using `.copier-answers.yml`.
-`_skip_if_exists` holds back `README.md`, `AGENTS.md`, and `CLAUDE.md` once the project has
-edited them, so those files stop receiving template changes.
+`README.md`, `AGENTS.md`, and `CLAUDE.md` are in `_skip_if_exists`: once generated, they
+belong to the project and never receive template changes.
 
 ## Adopt into an existing project
 
@@ -55,42 +55,6 @@ later `copier update` reads it. Reconcile first if the project already has one.
 Expect `typeCheckingMode = "strict"` to be the expensive part on an existing codebase,
 especially against untyped dependencies.
 
-## Try a local project
-
-Generate a persistent sample from the local template, including uncommitted changes:
-
-```sh
-uvx --from 'copier==9.17.1' copier copy --defaults -r HEAD \
-  -d project_name=sample-project -d 'description=Local template playground' \
-  . .playground/sample-project
-cd .playground/sample-project
-git init
-uv sync
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
-uv run pyright
-uv build
-```
-
-`.playground/` is gitignored and excluded from template validation snapshots. Use a
-new destination under it when trying a fresh generation.
-
-## Release a template change
-
-```sh
-scripts/check-template.sh
-git add -A && git commit -m "..."
-git tag -a vX.Y.Z -m "..."
-git push && git push origin vX.Y.Z
-```
-
-Use annotated tags; Copier resolves the latest remote tag.
-
-The template check renders every supported Python version, exercises custom package
-names and quoted descriptions, runs the generated checks and build, verifies that
-invalid answers are rejected, and tests update from the previous release tag.
-
 ## What it generates
 
 | file | purpose |
@@ -100,6 +64,7 @@ invalid answers are rejected, and tests update from the previous release tag.
 | `.github/workflows/ci.yml` | pytest, ruff, pyright, and build checks |
 | `AGENTS.md` | Scope / Commands / Invariants / Working notes skeleton |
 | `CLAUDE.md` | `@AGENTS.md` |
+| `.python-version` | the chosen minimum Python version |
 | `src/<package>/`, `tests/` | src layout with a smoke test |
 
 ## Conventions
@@ -112,6 +77,21 @@ invalid answers are rejected, and tests update from the previous release tag.
   table, so editor and CI diagnostics stay aligned.
 - pyright is pinned as `pyright[nodejs]`. The extra resolves Node as a locked wheel, so
   `uv sync` stays sufficient - bare `pyright` downloads a runtime on first run.
-- Generic Python standards live in a user-level agents file, e.g.
-  `~/.config/agents-config/AGENTS.md`. The generated `AGENTS.md` carries
-  project-specific scope, commands, and invariants only.
+- The generated `AGENTS.md` carries project-specific scope, commands, and invariants
+  only; keep generic coding standards in a user-level agents file.
+
+## Developing this template
+
+Generate a sample from the working tree, including uncommitted changes, into the
+gitignored `.playground/`:
+
+```sh
+uvx --from 'copier==9.17.1' copier copy --defaults -r HEAD \
+  -d project_name=sample-project -d 'description=Local template playground' \
+  . .playground/sample-project
+```
+
+Before releasing, run `scripts/check-template.sh`. It renders every supported Python
+version, runs the generated checks and build, verifies that invalid answers are rejected,
+and tests updating from the previous release tag. Then tag with an annotated tag
+(`git tag -a vX.Y.Z`); Copier resolves the latest remote tag.
